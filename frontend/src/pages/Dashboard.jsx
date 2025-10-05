@@ -1,6 +1,8 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
 
-export default function Dashboard() {
+const Dashboard = () => {
+  const { user } = useContext(AuthContext);
   const [heatmapData, setHeatmapData] = useState([]);
 
   useEffect(() => {
@@ -10,9 +12,30 @@ export default function Dashboard() {
       .catch((err) => console.error(err));
   }, []);
 
+  const getCityName = (lat) => {
+    switch (lat) {
+      case 28.6139:
+        return "Delhi";
+      case 19.076:
+        return "Mumbai";
+      case 13.0827:
+        return "Chennai";
+      case 22.5726:
+        return "Kolkata";
+      default:
+        return "Unknown";
+    }
+  };
+
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Urban Heat Map & Green Cover Dashboard</h1>
+
+      {user && (
+        <p className="mb-6">
+          Logged in as: <strong>{user.username || user.email}</strong>
+        </p>
+      )}
 
       {heatmapData.length === 0 ? (
         <p>Loading data...</p>
@@ -30,12 +53,7 @@ export default function Dashboard() {
           <tbody>
             {heatmapData.map((point, idx) => (
               <tr key={idx}>
-                <td className="border border-gray-400 px-4 py-2">
-                  {point.lat === 28.6139 ? "Delhi" : 
-                   point.lat === 19.0760 ? "Mumbai" :
-                   point.lat === 13.0827 ? "Chennai" :
-                   "Kolkata"}
-                </td>
+                <td className="border border-gray-400 px-4 py-2">{getCityName(point.lat)}</td>
                 <td className="border border-gray-400 px-4 py-2">{point.lat}</td>
                 <td className="border border-gray-400 px-4 py-2">{point.lon}</td>
                 <td className="border border-gray-400 px-4 py-2">{point.temp}</td>
@@ -47,4 +65,6 @@ export default function Dashboard() {
       )}
     </div>
   );
-}
+};
+
+export default Dashboard;

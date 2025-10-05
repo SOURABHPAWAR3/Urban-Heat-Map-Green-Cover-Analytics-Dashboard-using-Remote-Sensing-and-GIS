@@ -1,25 +1,40 @@
-from flask import Flask, jsonify
+from flask import Flask
 from flask_cors import CORS
+from extensions import db, jwt
+from auth.routes import auth_bp
 
-app = Flask(__name__)
-CORS(app)
+def create_app():
+    app = Flask(__name__)
 
-# 🔧 Dummy city data (can be replaced with real satellite/API data later)
-city_data = [
-    {"city": "Delhi", "lat": 28.6139, "lon": 77.2090, "temp": 34, "ndvi": 0.25},
-    {"city": "Mumbai", "lat": 19.0760, "lon": 72.8777, "temp": 32, "ndvi": 0.35},
-    {"city": "Chennai", "lat": 13.0827, "lon": 80.2707, "temp": 33, "ndvi": 0.40},
-    {"city": "Kolkata", "lat": 22.5726, "lon": 88.3639, "temp": 31, "ndvi": 0.28},
-]
+    # --- Configuration ---
+    app.config["SECRET_KEY"] = "mysecret123"
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///users.db"
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    app.config["JWT_SECRET_KEY"] = "jwt-secret-456"  # for Flask-JWT-Extended
 
-@app.route("/")
-def home():
-    return {"status": "Backend Running - IIRS Project"}
+    # --- Initialize Extensions ---
+    db.init_app(app)
+    jwt.init_app(app)
 
-# ✅ New API route with city names (for dynamic markers in frontend)
-@app.route("/api/cities")
-def get_cities():
-    return jsonify(city_data)
+    # --- Enable CORS (for React Frontend) ---
+    CORS(app, origins=["http://localhost:5173"])
+
+
+    # --- Register Blueprints ---
+    app.register_blueprint(auth_bp, url_prefix="/api")
+
+    # --- Create Tables ---
+    with app.app_context():
+        db.create_all()
+
+    # --- Root Endpoint ---
+    @app.route("/")
+    def home():
+        return {"message": "Flask backend is running successfully!"}
+
+    return app
+
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    app = create_app()
+    app.run(debug=True)
