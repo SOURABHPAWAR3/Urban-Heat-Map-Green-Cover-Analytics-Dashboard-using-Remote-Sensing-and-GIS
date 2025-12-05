@@ -25,7 +25,7 @@ const Navbar = () => {
         </>
       ) : (
         <>
-          <Link to="/dashboard">Dashboard</Link>
+          <Link to="/dashboard">HeatMap Dashboard</Link>
           <button onClick={logout} style={{ marginLeft: "auto" }}>
             Logout
           </button>

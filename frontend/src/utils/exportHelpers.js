@@ -35,17 +35,47 @@ export const exportToExcel = (data, filename = "export") => {
 };
 
 // 📤 Export to PDF
-export const exportToPDF = async(elementId, filename = "report") => {
+export const exportToPDF = async (elementId, filename = "report") => {
     const element = document.getElementById(elementId);
-    if (!element) return;
+    if (!element) {
+        console.error(`Element with id "${elementId}" not found`);
+        return;
+    }
 
-    const canvas = await html2canvas(element);
-    const imgData = canvas.toDataURL("image/png");
+    const canvas = await html2canvas(element, {
+        scale: 3, // High quality rendering
+        useCORS: true,
+        backgroundColor: "#ffffff",
+        logging: false,
+        width: element.scrollWidth,
+        height: element.scrollHeight,
+        windowWidth: element.scrollWidth,
+        windowHeight: element.scrollHeight,
+        allowTaint: false,
+        x: 0,
+        y: 0,
+    });
 
+    const imgData = canvas.toDataURL("image/png", 1.0);
     const pdf = new jsPDF("p", "mm", "a4");
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const margin = 10;
+    const printableWidth = pageWidth - margin * 2;
+    const imgHeight = (canvas.height * printableWidth) / canvas.width;
 
-    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+    let heightLeft = imgHeight;
+    let position = margin;
+
+    pdf.addImage(imgData, "PNG", margin, position, printableWidth, imgHeight);
+    heightLeft -= pageHeight - margin * 2;
+
+    while (heightLeft > 0) {
+        position = heightLeft - imgHeight + margin;
+        pdf.addPage();
+        pdf.addImage(imgData, "PNG", margin, position, printableWidth, imgHeight);
+        heightLeft -= pageHeight - margin * 2;
+    }
+
     pdf.save(`${filename}.pdf`);
 };

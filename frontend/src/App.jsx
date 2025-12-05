@@ -3,8 +3,8 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import Dashboard from "./pages/Dashboard";
 import PrivateRoute from "./components/PrivateRoute";
+import HeatMap from "./components/HeatMap";
 
 const App = () => {
   return (
@@ -25,12 +25,12 @@ const App = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        {/* Protected route */}
+        {/* Protected HeatMap route (Dashboard now redirects here) */}
         <Route
           path="/dashboard"
           element={
             <PrivateRoute>
-              <Dashboard />
+              <HeatMap />
             </PrivateRoute>
           }
         />
