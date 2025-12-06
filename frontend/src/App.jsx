@@ -1,6 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
+import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import PrivateRoute from "./components/PrivateRoute";
@@ -12,20 +13,13 @@ const App = () => {
       <Navbar />
       <Routes>
         {/* Home route */}
-        <Route
-          path="/"
-          element={
-            <h1 style={{ textAlign: "center", marginTop: "50px" }}>
-              Welcome to Urban Heat Map Dashboard
-            </h1>
-          }
-        />
+        <Route path="/" element={<Home />} />
 
         {/* Public routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        {/* Protected HeatMap route (Dashboard now redirects here) */}
+        {/* Protected HeatMap route */}
         <Route
           path="/dashboard"
           element={
